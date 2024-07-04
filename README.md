@@ -1,13 +1,6 @@
-<!--
- * @Author: ybf
- * @Date: 2023-08-17 09:57:00
- * @LastEditTime: 2023-08-17 09:58:22
- * @Description: 描述
- * Copyright (c) 2023 by 慧能分享, All Rights Reserved.
--->
+
 # mobileInformationPort
 
-智慧暖通空调调度平台（华电）
 
 ## Getting started
 
