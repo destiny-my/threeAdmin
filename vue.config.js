@@ -33,35 +33,10 @@ module.exports = {
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API + '/optimize']: {
-        target: `http://172.26.200.209:8808`,
+        target: `http://172.0.0.1:8808`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API + '/optimize']: ''
-        }
-      },
-      [process.env.VUE_APP_BASE_API]: {
-        target: `http://172.26.200.203:80921`,
-        changeOrigin: true,
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
-        }
-      },
-      [process.env.VUE_APP_BASE_BIZ_SERVICE]: {
-        // target: 'http://172.26.200.202:8083/',
-        target: 'http://172.16.1.163:8083/',
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_BIZ_SERVICE]: ''
-        }
-      },
-      "/mobileData": {
-        target: 'http://172.26.200.202:8081/projectAccess/',
-        ws: true,
-      },
-      [process.env.VUE_APP_BASE_YAPI]: {
-        target: 'http://172.26.200.36:43043/mock/243/',
-        changeOrigin: true,
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_YAPI]: ''
         }
       },
     },
