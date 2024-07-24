@@ -7,11 +7,6 @@
         <span class="title-fourth weather-temp">{{ weather.weather }} {{ weather.temperature }}℃</span> -->
       </div>
     </el-col>
-    <el-col :span="14">
-      <div class="title-text">
-        <span class="title-first">智慧暖通空调调度平台</span>
-      </div>
-    </el-col>
     <el-col :span="5">
       <div class="weather-box" style="text-align: right;">
         <el-col :span="16">
@@ -56,83 +51,20 @@ export default {
   },
   mounted() {
     // this.updateWeather() // 更新天气
-    this.updateTime() // 更新时间
-    const timer = setInterval(() => {
-      this.updateTime()
-    }, 1000)
+    // this.updateTime() // 更新时间
+    // const timer = setInterval(() => {
+    //   this.updateTime()
+    // }, 1000)
 
-    window.addEventListener('unload', e => this.unloadHandler(e))
+    // window.addEventListener('unload', e => this.unloadHandler(e))
   },
 
   // destroyed() {
   //   window.removeEventListener('unload', e => this.unloadHandler(e))
   // },
   methods: {
-    updateWeather: function () {
-      // 更新天气
-      let date = parseTime(new Date(), "{y}-{m}-{d}");
-      Monitor.getWeather(date).then((res) => {
-        if (res === undefined || res === null || res["code"] !== 0) {
-          return;
-        }
 
-        let data = res["rows"];
-        if (data === undefined || data === null || data.length !== 1) {
-          return;
-        }
-
-        this.weather = data[0];
-      });
-    },
-    updateTime: function () {
-      // 更新时间
-      let date = new Date()
-      date = parseTime(date, '{y}-{m}-{d} {a} {h}:{i}:{s}')
-      date = date.split(" ")
-      this.nowTime.day = date[0] + ' 星期' + date[1]
-      this.nowTime.time = date[2]
-    },
-    dropdown: function (command) {
-      // 下拉点击处理
-      if (command === '配置管理') {
-        this.openConfigMgr()
-      } else if (command === '退出登录') {
-        this.logout()
-      }
-    },
-    openConfigMgr: function () {
-      // 打开配置管理后台页面
-      // 读取配置
-      Analyse.selectDictLabel({ 'dictType': 'lt_config', 'dictValue': 'scada_url' }).then((res) => {
-        if (res === undefined || res === null || res['code'] !== 0) {
-          return
-        }
-
-        let _scadaUrl = res['msg']
-        if (_scadaUrl.length <= 0) {
-          return
-        }
-
-        window.open(_scadaUrl)
-      })
-    },
-    async logout() {
-      // 退出系统
-      this.$confirm('确定注销并退出系统吗？', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
-        this.$store.dispatch('LogOut').then(() => {
-          // location.href = '/mobileinformationport/#/login';
-          this.$router.push('/login')
-        })
-      })
-    },
-    unloadHandler(e) {
-      //判断是窗口关闭还是刷新
-      this.$store.dispatch('LogOut').then(() => {
-        // location.href = '/mobileinformationport/#/login';
-        this.$router.push('/login')
-      })
-
-    },
+  
   }
 }
 </script>
@@ -144,8 +76,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: url('../assets/image/header.png') no-repeat;
-  background-size: 100% 100%;
+
 
   .weather-box {
     height: 0.4323rem;

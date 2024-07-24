@@ -10,19 +10,19 @@ export default class AnimatedTracks {
    * @param _model
    * @param _firstPosition
    */
-  constructor (_model, _viewer, _showLine, _callback, _rotationY = Math.PI / 2) {
-    this.position = _model.position
-    this.model = _model
-    this.rotationY = _rotationY
-    this.tweenList = []
-    this.positionList = []
-    this.callback = _callback
-    this.isStart = false
-    this.listID = false
-    this.line = ''
-    this.geometry = new THREE.BufferGeometry()
-    this.viewer = _viewer
-  }
+  // constructor (_model, _viewer, _showLine, _callback, _rotationY = Math.PI / 2) {
+  //   this.position = _model.position
+  //   this.model = _model
+  //   this.rotationY = _rotationY
+  //   this.tweenList = []
+  //   this.positionList = []
+  //   this.callback = _callback
+  //   this.isStart = false
+  //   this.listID = false
+  //   this.line = ''
+  //   this.geometry = new THREE.BufferGeometry()
+  //   this.viewer = _viewer
+  // }
 
   /**
    * 对线段进行分割
@@ -108,4 +108,22 @@ export default class AnimatedTracks {
     })
     return tempTween
   }
+
+
+  createTweenT(mode,postion,time,callback,timeTow = null){
+    let tween = new TWEEN.Tween(mode)
+    .to(postion, time) // 旋转 360 度（2π），持续 5000 毫秒
+    // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀
+    .onComplete(() => {
+      callback()
+    });
+
+    if(timeTow){
+      tween.to(timeTow.postion,timeTow.time)
+    }
+    tween.start();
+  }
 }
+
+
+

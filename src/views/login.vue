@@ -1,7 +1,7 @@
 <template>
   <div class="login title-fifth">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title title-fourth">智慧暖通空调调度平台</h3>
+      <h3 class="title title-fourth">谢烟客</h3>
       <el-form-item prop="username">
         <el-input clearable v-model="loginForm.username" type="text" auto-complete="off" placeholder="请输入账号">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon"/>

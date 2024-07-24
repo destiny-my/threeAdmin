@@ -6,7 +6,7 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || '智慧暖通空调调度平台' // 标题
+const name = defaultSettings.title || '谢烟客' // 标题
 const port = process.env.PORT || process.env.npm_config_port || 8081 // 端口
 
 // vue.config.js 配置说明

@@ -35,7 +35,8 @@ export default class Viewer {
         this.statsControls = undefined
         this.animateEventList = []
         this._initViewer()
-        
+        this.addAxis()
+        this.isControlsEnabled = true
     }
 
     /**
@@ -75,7 +76,7 @@ export default class Viewer {
     }
 
     beforeDestroy() {
-        this.scene.traverse((child) => {
+        this.scene.traverse((child) => { 
             if (child.material) {
                 child.material.dispose()
             }
@@ -166,19 +167,26 @@ export default class Viewer {
         // 全局调试器
         const that = this
 
-        function animate() {
-            requestAnimationFrame(animate)
-            that._undateDom()
-            that._readerDom()
-            // 全局的公共动画函数，添加函数可同步执行
-            that.animateEventList.forEach(event => {
-                event.fun && event.content && event.fun(event.content)
-            })
-        }
+         
 
-        animate()
+        this.animate()
     }
-
+    animate() {
+        // requestAnimationFrame(animate)
+        requestAnimationFrame(this.animate.bind(this));
+        this._undateDom()
+        this._readerDom()
+        // console.log(this.scene.children[3])
+        // if(this.scene.children[3]){
+        //     this.scene.children[3].rotation.y += 0.01;
+        // }
+ 
+        // 全局的公共动画函数，添加函数可同步执行
+        this.animateEventList.forEach(  event => {
+            // alert(1)
+             event.fun(event.content)
+        })
+    }
     /**
      * 创建初始化场景界面
      */
@@ -226,32 +234,38 @@ export default class Viewer {
 
     _initCamera() {
         // 渲染相机
-        this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 500000)
-        this.camera.position.set(50, 0, 50)
-        this.camera.lookAt(0, 0, 0)
+        this.camera = new PerspectiveCamera(74, window.innerWidth / window.innerHeight, 0.1, 5000)
+        // this.camera.position.set(50, 0, 1000)
+        // this.camera.lookAt(0, 0, 0)
+        // this.camera.position.z = 5;
+
     }
 
     _initScene() {
         // 渲染场景
         this.scene = new Scene()
         this.css3dScene = new Scene()
-        this.scene.background = null
+        // this.scene.background =  new Color("#eee7dc")
+    
     }
 
     _initControl(option) {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-        this.controls.minDistance = 50;
-        this.controls.maxDistance = 1000;
-        this.controls.autoRotate = true 
-        this.controls.dampingFactor = 0.5
-        // this.controls.enableDamping = false
-        // this.controls.screenSpacePanning = false // 定义平移时如何平移相机的位置 控制不上下移动
+        // this.controls.minDistance = 100;
+        this.controls.enableZoom = false;
+        this.controls.enablePan = false
+        this.controls.enableRotate = false; //禁止旋转
+        // this.controls.maxDistance = 100;
+        this.controls.enableDamping = false
+        this.controls.screenSpacePanning = false // 定义平移时如何平移相机的位置 控制不上下移动
     }
 
     // 更新dom大小
     _undateDom() {
         const that = this
-        that.controls.update()
+        if (this.isControlsEnabled) {  
+            this.controls.update();  
+        } 
         // 更新参数
         that.camera.aspect = that.viewerDom.clientWidth / that.viewerDom.clientHeight // 摄像机视锥体的长宽比，通常是使用画布的宽/画布的高
         that.camera.updateProjectionMatrix() // 更新摄像机投影矩阵。在任何参数被改变以后必须被调用,来使得这些改变生效
@@ -287,7 +301,7 @@ export default class Viewer {
     _readerDom() {
         this.renderer.render(this.scene, this.camera)
         this.labelRenderer.render(this.scene, this.camera)
-        this.css3DRenderer.render(this. zc, this.camera)
+        this.css3DRenderer.render(this.css3dScene, this.camera)
     }
 
     // 添加skybox

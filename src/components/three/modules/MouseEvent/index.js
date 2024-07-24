@@ -12,6 +12,7 @@ export default class MouseEvent {
     this.callback = _callback
     this.type = _type
     this.composer = new EffectComposer(this.viewer.renderer)
+
     return this
   }
 
@@ -19,6 +20,7 @@ export default class MouseEvent {
     composer.render()
   }
 
+  
   startSelect (isSelect = true) {
     // 开始绑定点击事件
     this.stopSelect()

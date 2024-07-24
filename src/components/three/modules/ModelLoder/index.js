@@ -3,8 +3,10 @@ import {DRACOLoader} from 'three/examples/jsm/loaders/DRACOLoader.js'
 import DsModel from '../DsModel'
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import Time from "../../Utils/Time.js";
-
+import * as dat from 'dat.gui';
+// import testVerrtexShader from "../../shaders/vertex.glsl"
 import * as THREE from 'three'
+
 
 
 /**
@@ -23,11 +25,13 @@ export default class ModelLoder {
         this.loaderFBX = new FBXLoader()// 实例化加载器
         this.dracoLoader = new DRACOLoader()
         this.time = new Time()
+        this.parent = new THREE.Group();  
         this.update = function update() {}
         // 提供一个DracLoader实例来解码压缩网格数据
         // 没有这个会报错
         this.dracoLoader.setDecoderPath(resourcesUrl)// 默认放在public文件夹当中
         this.loaderGltf.setDRACOLoader(this.dracoLoader)
+        
     }
 
     /**
@@ -38,7 +42,11 @@ export default class ModelLoder {
      */
     loadModelToScene(url, callback, progress) {
         this.loadModel(url, model => {
-            // this.scene.add(model.object)
+            // this.position.set(1, 0, 0);
+            //  
+            this.scene.add(this.parent);
+
+            this.parent.add(model.object)
             callback && callback(model)
         }, num => {
             progress && progress(num) // 输出加载进度
@@ -52,7 +60,7 @@ export default class ModelLoder {
     
         // console.log(this.model)
         model.traverse( ( child ) => {
-            console.log(child,123)
+
     
             if ( child.isMesh ) {
                 
@@ -81,7 +89,7 @@ export default class ModelLoder {
         return new THREE.BufferAttribute( this.combined, 3 );
     }
 
-
+    // 创建粒子
     createMesh( positions, scale, x, y, z ) {
 
         this.geometry = new THREE.BufferGeometry();
@@ -113,7 +121,68 @@ export default class ModelLoder {
 
     }
 
-    
+    // 创建shaders
+    shadersFunc(){
+        // const textureLoader = new THREE.TextureLoader()
+        
+        const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
+        const count = geometry.attributes.position.count
+        const randoms = new Float32Array(count)
+        for(let i =0;i<count; i++){
+            randoms[i] = Math.random()
+        }
+        geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1))
+        // const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+
+        const material = new THREE.RawShaderMaterial({  
+            vertexShader: `  
+                uniform mat4 projectionMatrix;  
+                uniform mat4 viewMatrix;  
+                uniform mat4 modelMatrix;
+                // uniform  float uFrequency;
+                uniform  vec2 uFrequency;
+
+                attribute vec3 position;
+                attribute float aRandom;
+                varying float vRandom;  
+          
+                void main()  
+                {  
+                    vec4 modelPosition =  modelMatrix * vec4(position, 1.0);
+                    modelPosition.z += sin(modelPosition.x * uFrequency.x)* 0.05;
+                    modelPosition.z += sin(modelPosition.y * uFrequency.y)* 0.1;
+
+                    // modelPosition.z += aRandom * 0.1;
+                    vec4 viewPosition =  viewMatrix * modelPosition;
+                    vec4 projectedPosition = projectionMatrix * viewPosition;  
+                    gl_Position =  projectedPosition;
+                    vRandom = aRandom;
+                }  
+            `,  
+            fragmentShader: `  
+                precision mediump float; 
+                varying float vRandom;  
+                void main()  
+                {  
+                    gl_FragColor = vec4(0.5, vRandom*0.5, 1.0, 1.0);  
+                }  
+            ` ,
+            uniforms:{
+                uFrequency:{value:new THREE.Vector2(10,5)}              
+            }
+        });
+        const mesh = new THREE.Mesh(geometry,material)
+        this.scene.add(mesh)
+        // dat.add(material.uniforms.uFrequency)
+
+
+        // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+        // const mesh = new THREE.Mesh( geometry, material ); 
+        // this.scene.add(mesh)
+
+    }
+
+
     enableUpdate()
     {
         // Update Function
@@ -237,6 +306,26 @@ export default class ModelLoder {
         // }
     }
 
+
+     /**
+     * 创建圆柱体
+     * @param underBanJIn 底部半径
+     * @param callback 顶部半径
+     * @param height 高度
+     */
+    Cylinder(underBanJIn, topBanJin, height){
+        var geometry = new THREE.CylinderGeometry(underBanJIn, topBanJin, height,32);
+        const material = new THREE.MeshStandardMaterial({  
+            color: 0x0088ff, // 浅蓝色  
+            metalness: 0,    // 非金属  
+            roughness: 0.5,  // 粗糙度，影响反射的清晰度  
+            // environmentMap: new THREE.CubeTextureLoader().load([...]) // 加载环境贴图数组  
+        });// 绿色 
+        var mesh = new THREE.Mesh(geometry, material);
+        this.scene.add(mesh);
+
+        
+    }
 
     verticesUp(){
                    // all vertices down (go up)

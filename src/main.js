@@ -24,7 +24,6 @@ import vueSeamlessScroll from 'vue-seamless-scroll'
 import modules from "@/components/three/modules/index.js";
 import EcahrtOption from "@/components/VueEhcartsOption/index.js";
 import VueCesium from 'vue-cesium'
-// VueCesium 默认使用 `https://unpkg.com/cesium@latest/Build/Cesium/Cesium.js`
 
 import ECharts from 'vue-echarts'
 // 接口列表
@@ -39,9 +38,8 @@ import {
 
 Vue.use(dataV)
 Vue.use(vueSeamlessScroll)
-Vue.use(VueCesium, {
-    cesiumPath: 'https://unpkg.com/cesium@1.100/Build/Cesium/Cesium.js'
-  })
+
+
 // 全局方法挂载
 Vue.prototype.$buildingNo = '3#'
 Vue.prototype.$echarts = echarts

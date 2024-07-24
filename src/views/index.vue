@@ -1,19 +1,14 @@
 <template>
   <!-- 首页 -->
-  <div class="container title-fourth">
-    <!-- 左侧 -->
-    <div class="main-left"></div>
+  
     <!-- 中间 -->
     <div class="main">
+      <!-- <div>123123</div> -->
       <!-- 3D图 -->
       <div class="main-3d">
         <Three ref="ThreeRef" />
       </div>
     </div>
-    <!-- 右侧 -->
-    <div class="main-right"></div>
-
-  </div>
 </template>
 
 <script>
@@ -25,22 +20,12 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.box-title {
-  background: url("../assets/image/title.png") no-repeat;
-  background-size: 100% 100%;
-  height: 0.1979rem;
-  margin: 0.0521rem 0;
-  line-height: 0.1667rem;
-
-  padding-left: 0.1823rem;
-  display: flex;
-  justify-content: space-between;
-}
 
 .container {
-  display: flex;
+  // display: flex;
   height: 100%;
   justify-content: space-between;
+
   color: #def1fd;
   font-weight: 500;
 
@@ -199,102 +184,7 @@ export default {
     }
   }
 
-  .main {
-    width: 50%;
-    height: 100%;
 
-    .main-real-data {
-      width: 100%;
-      // border-bottom: 0.0052rem solid rgb(250, 227, 18);
-      height: 14%;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      // z-index: 100;
-      margin: auto;
-
-      .box1-info {
-        display: flex;
-
-        .box1-img {
-          width: 0.3594rem;
-          height: 0.3594rem;
-          background: url("../assets/image/icon-bigBorder.png");
-          background-size: 100% 100%;
-
-          img {
-            width: 0.3594rem;
-            height: 0.3594rem;
-          }
-        }
-
-        .box1-real {
-          padding-left: 0.0521rem;
-
-          span {
-            display: block;
-          }
-
-          .real-name {
-            font-weight: 400;
-            padding-top: 0.0365rem;
-          }
-
-          .real-num {
-            font-size: 0.1302rem;
-            font-weight: bold;
-            color: #e7f7ff;
-            padding-top: 0.0365rem;
-          }
-        }
-      }
-    }
-
-    .main-3d {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-
-      .tab-title {
-        padding: 0.0521rem;
-        font-size: 0.0729rem;
-        top: 24%;
-        left: 62%;
-        height: 10%;
-        width: 13%;
-        position: absolute;
-        background: rgba(58, 91, 125, 0.15);
-        border: 0.0052rem solid #3a5b7d;
-
-        div {
-          height: 20px;
-          width: 100%;
-          // text-align: center;
-        }
-      }
-
-      img {
-        width: 70%;
-        height: 100%;
-      }
-    }
-
-    .copyright {
-      height: 40px;
-      line-height: 40px;
-      position: fixed;
-      bottom: 20px;
-      text-align: center;
-      color: #b6bad2;
-      font-size: 14px;
-      letter-spacing: 1px;
-      position: absolute;
-      top: 86.5%;
-      left: 50%;
-      transform: translate(-50%, 0px);
-    }
-  }
 
   .main-right {
     width: 23%;
@@ -523,6 +413,20 @@ export default {
   }
 }
 
+.main {
+  width: 100%;
+      height: 100%;
+    // position: absolute;
+    background: #0094ff;
+
+    
+    .main-3d {
+      width: 100%;
+      height: 100%;
+      background: #5c6972;
+    }
+
+  }
 .el-carousel__indicators {
   z-index: 1;
 }

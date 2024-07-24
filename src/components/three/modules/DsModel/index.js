@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {clone} from 'three/examples/jsm/utils/SkeletonUtils.js'
 import DsModelSplit from './ModelSplit'
+import { Alert } from 'element-ui'
 
 /**
  * 模型对象，带相关函数
@@ -133,19 +134,28 @@ export default class DsModel {
     onesAnimate(i = 0) {
         this.animaIndex = i
         if (this.mixer) this.mixer.clipAction(this.model.animations[this.animaIndex]).stop()
-        if(i == 0 || i ==  1 || i == 4){
+        if(i == 0 || i ==  1 || i == 4 || i == 2){
             this.mixer = null
         }
         if (!this.mixer) this.mixer = new THREE.AnimationMixer(this.object)
         if (this.model.animations.length < 1) return
-        console.log(this.mixer)
         let action = this.mixer.clipAction(this.model.animations[i])
-        
-        action.setLoop(THREE.LoopOnce);
-        action.clampWhenFinished = true;
+        action.name = i
+        action.setLoop(THREE.LoopOnce);  
+        action.clampWhenFinished = true; 
+        this.mixer.addEventListener( 'finished', ( e )=>{ 
+            if(e.action.name !==2){
+                this.onesAnimate(2)
+            }
+            this.mixer.removeEventListener("finished")
+
+            return
+        } );
         // action.time = 0; //操作对象设置开始播放时间
         // this.model.animations[i].duration = 60;//剪辑对象设置播放结束时间
         action.play();
+      // 监听动画完成事件  
+
         // 传入参数需要将函数与函数参数分开，在运行时填入
         this.animaObject = {
             fun: this._updateAnima,
@@ -157,6 +167,47 @@ export default class DsModel {
     }
 
 
+    onesAnimateD(i = 0) {  
+        this.animaIndex = i;  
+      
+        // 如果已经有一个mixer在运行，则停止它  
+        if (this.mixer) {  
+            this.mixer.stopAllAction();  
+            this.mixer.uncacheClip(this.model.animations[this.animaIndex]); // 如果需要，可以取消缓存  
+        }  
+      
+        // 创建一个新的mixer（如果之前被设为null）  
+        if (!this.mixer) {  
+            this.mixer = new THREE.AnimationMixer(this.object);  
+        }  
+      
+        if (this.model.animations.length < 1) return;  
+      
+        let action = this.mixer.clipAction(this.model.animations[i]);  
+      
+        // 设置动画倒序播放  
+        action.setEffectiveTimeScale(-1);  
+      
+        // 设置动画播放一次（但由于timeScale为负，它将从最后一帧开始）  
+        action.setLoop(THREE.LoopOnce);  
+        action.clampWhenFinished = true; // 这将防止动画结束后继续播放（虽然由于倒序，这可能不是完全必要的）  
+      
+        action.play();  
+
+        // 如果你需要在动画播放期间更新UI或执行其他操作  
+        // 你可能需要设置一个监听器来监听动画的完成  
+        action.onComplete = () => {  
+            console.log('Animation completed in reverse.');  
+            // 这里可以添加动画完成后需要执行的代码  
+        };  
+      
+        // 如果你的viewer有一个添加动画更新的方法，你可以这样添加  
+        this.animaObject = {  
+            fun: this._updateAnima,  
+            content: this  
+        };  
+        this.viewer.addAnimate(this.animaObject);  
+    }
 
     stopAnima() {
         if (this.model.animations.length < 1) return
@@ -166,7 +217,11 @@ export default class DsModel {
     }
 
     _updateAnima(e) {
-        e.mixer.update(e.clock.getDelta())
+        // e.mixer.update(e.clock.getDelta())
+        if (e.mixer) {  
+            e.mixer.update(e.clock.getDelta());  
+        }
+
     }
 
     /**
