@@ -35,7 +35,7 @@ export default class Viewer {
         this.statsControls = undefined
         this.animateEventList = []
         this._initViewer()
-        this.addAxis()
+        // this.addAxis()
         this.isControlsEnabled = true
     }
 
@@ -234,7 +234,7 @@ export default class Viewer {
 
     _initCamera() {
         // 渲染相机
-        this.camera = new PerspectiveCamera(74, window.innerWidth / window.innerHeight, 0.1, 5000)
+        this.camera = new PerspectiveCamera(58, window.innerWidth / window.innerHeight, 1, 1000)
         // this.camera.position.set(50, 0, 1000)
         // this.camera.lookAt(0, 0, 0)
         // this.camera.position.z = 5;
@@ -259,7 +259,7 @@ export default class Viewer {
         this.controls.enableDamping = false
         this.controls.screenSpacePanning = false // 定义平移时如何平移相机的位置 控制不上下移动
     }
-
+        
     // 更新dom大小
     _undateDom() {
         const that = this
@@ -267,12 +267,14 @@ export default class Viewer {
             this.controls.update();  
         } 
         // 更新参数
-        that.camera.aspect = that.viewerDom.clientWidth / that.viewerDom.clientHeight // 摄像机视锥体的长宽比，通常是使用画布的宽/画布的高
+        that.camera.aspect = that.viewerDom.clientWidth/ that.viewerDom.clientHeight // 摄像机视锥体的长宽比，通常是使用画布的宽/画布的高
         that.camera.updateProjectionMatrix() // 更新摄像机投影矩阵。在任何参数被改变以后必须被调用,来使得这些改变生效
         that.renderer.setSize(that.viewerDom.clientWidth, that.viewerDom.clientHeight)
         that.renderer.setPixelRatio(window.devicePixelRatio) // 设置设备像素比
         that.labelRenderer.setSize(that.viewerDom.clientWidth, that.viewerDom.clientHeight)
         that.css3DRenderer.setSize(that.viewerDom.clientWidth, that.viewerDom.clientHeight)
+        // console.log(that.viewerDom.clientWidth)
+
 
     }
 
@@ -284,6 +286,7 @@ export default class Viewer {
     _newTag(targePosition, targetId) {
         let world_vector = new Vector3(targePosition.x, targePosition.y, targePosition.z);
         let vector = world_vector.project(this.camera);
+        
         let halfWidth = window.innerWidth / 2,
             halfHeight = window.innerHeight / 2;
         let x = Math.round(vector.x * halfWidth + halfWidth);

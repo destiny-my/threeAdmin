@@ -23,7 +23,8 @@ import * as THREE from 'three'
 import vueSeamlessScroll from 'vue-seamless-scroll'
 import modules from "@/components/three/modules/index.js";
 import EcahrtOption from "@/components/VueEhcartsOption/index.js";
-import VueCesium from 'vue-cesium'
+// import VueCesium from 'vue-cesium'
+import VueTypedJs from 'vue-typed-js'
 
 import ECharts from 'vue-echarts'
 // 接口列表
@@ -36,6 +37,7 @@ import {
   httpDel
 } from '@/utils/request'
 
+Vue.use(VueTypedJs)
 Vue.use(dataV)
 Vue.use(vueSeamlessScroll)
 

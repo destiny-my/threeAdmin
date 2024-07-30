@@ -887,3 +887,92 @@ export let optionRadar = {
     data: []
   }]
 }
+
+
+// 水平柱状图
+export let SuiPingBar = {
+  backgroundColor: '#f2efe9',
+  xAxis: {
+      show: false
+  },
+  grid: {
+    left: '1%',
+    right: '2%',
+    bottom: '0%',
+    top: '2%',
+    height: '100%',
+    containLabel: true,
+    z: 22
+},
+  yAxis: [{
+      show: true,
+      data: ['vue', 'js', 'html', 'css', 'ts',"three","blander"],
+      inverse: true,
+      axisLine: {
+          show: false
+      },
+      splitLine: {
+          show: false
+      },
+      axisTick: {
+          show: false
+      },
+      axisLabel: {
+          textStyle: {
+              color: function(value, index) {
+                  var num = colorElecProp.length;
+                  return colorElecProp[index % num]
+              }
+          },
+          formatter: function(value, index) {
+              return [
+                  '{title|' + value + '} '
+              ].join('\n')
+          },
+          rich: {}
+      },
+
+  }],
+  series: [{
+      name: '条',
+      type: 'bar',
+      yAxisIndex: 0,
+      data: [80, 80, 90, 90, 80,80,60],
+      barWidth: 10,
+      itemStyle: {
+          normal: {
+              barBorderRadius: 30,
+              color: function(params) {
+                  var num = colorElecProp.length;
+                  return colorElecProp[params.dataIndex % num]
+              },
+          }
+      },
+      label: {
+          normal: {
+              show: true,
+              position: 'inside',
+              formatter: '{c}%'
+          }
+      },
+  },
+  {
+    name: '框',
+    type: 'bar',
+    // yAxisIndex: 1,
+    barGap: '-100%',
+    data: [100, 100, 100, 100, 100,100,100],
+    barWidth: 12,
+    itemStyle: {
+        normal: {
+            color: 'none',
+            borderColor: '#c4c4c4',
+            borderWidth: 2,
+            barBorderRadius: 15,
+        }
+    }
+}
+
+]
+
+};

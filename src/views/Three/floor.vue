@@ -3,17 +3,24 @@
   <div class="thhreeMain">
     <div id="d3Container" v-loading="loading" ref="mainContent"></div>
     <div class="d3Container1"></div>
-    <div class="d3Container2"></div>
+    <div class="d3Container2" v-show="d3Container2" style="position: relative;z-index: -1;">
+      <div style="position: absolute; height: 90%;width: 28%;left: 10%;top: 5%;">
+
+      </div>
+
+      
+    </div>
+    <!-- <div class="d3Container3" v-show="d3Container2" style="position: relative;z-index: -1;"></div> -->
   </div>
 </template>
 <script>
 import gsap from "gsap";
 import { overviewEnergyConsumptionInfo } from "../../api/three/three";
-import { modelUrl } from "@/api/url/modelUrl.js";
 import Materials from "../../components/three/shaders/Materials.js";
 import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
 
 export default {
+
   name: "ThreePage",
   props: {
     /*模型资源地址*/
@@ -85,6 +92,7 @@ export default {
       originY: 4,
       originZ: 0,
       renderer: null,
+      d3Container2: "true",
       // controls: null,
       labelRenderer: "",
       modelMoveName: null,
@@ -95,10 +103,14 @@ export default {
       typeAnimate: false,
       oldModelL: null,
       addCss2dLabelArr: [],
+      oldMather: {},
+      typeFangXiang: true,
     };
   },
   mounted() {
     // this.electricity()
+
+    this.mouseKongZhifunc = this.throttle(this.mouseKongZhi, 1000, 1000);
     this.init();
   },
   methods: {
@@ -113,7 +125,7 @@ export default {
      * 初始化函数
      */
     init() {
-       this.AnimatedTracks = new this.$modules.AnimatedTracks();
+      this.AnimatedTracks = new this.$modules.AnimatedTracks();
 
       this.viewer = new this.$modules.Viewer("d3Container"); //初始化场景
       // this.viewer.addAxis()
@@ -122,16 +134,20 @@ export default {
       // skyBoxs.addSkybox(1)
       // this.Labels = new this.$modules.Labels(this.viewer) //初始化场景
 
-      this.viewer.camera.position.set(5.4, 2,0); //设置相机位置
+      this.viewer.camera.position.set(8, 1.2, 0); //设置相机位置
 
-      let modeloader = new this.$modules.ModelLoder(this.viewer);
-
-      modeloader.shadersFunc()
+      // let modeloader = new this.$modules.ModelLoder(this.viewer);
+  
+      // modeloader.shadersFunc();
       // this.clickFunc();
       this.loadLoader();
       this.createLight();
-      this.mousemoveFunc();
-      this.mousewheelFunc();
+      // this.mousemoveFunc();
+      this.addEventListenerWhee();
+      this.resizeFunc()
+      this.addResizeListener()
+
+
       // this.mousedownFunc()
     },
 
@@ -147,11 +163,29 @@ export default {
       cancelAnimationFrame(this.animationId);
     },
 
+
+    resizeFunc(){
+      setTimeout(()=>{
+          if(window.innerWidth < 500){
+            this.viewer.scene.children[0].position.set(0, -2.3, 0)
+            this.viewer.scene.children[0].scale.set(0.5, 0.5, 0.5)
+          }else{
+            this.viewer.scene.children[0].position.set(0, -2.3, -3.3)
+            this.viewer.scene.children[0].scale.set(1, 1, 1)
+          }
+        },150)
+    },
+
+    addResizeListener(){
+
+      window.addEventListener('resize',this.resizeFunc)
+    },
     /**
      * 模型加载
      */
-     loadLoader() {
+    loadLoader() {
       let modeloader = new this.$modules.ModelLoder(this.viewer);
+      modeloader.shadersFunc();
       // gsap.to(this.viewer.camera.position, {
       //   x: 5,
       //   y: 1,
@@ -159,7 +193,7 @@ export default {
       //   duration: 2,
       //   ease: "Bounce.inOut",
       // });
-   
+
       // modeloader.Cylinder(1,1,5)
       modeloader.loadModelToScene("/model/room.glb", (_model) => {
         this.model["room"] = _model;
@@ -168,7 +202,7 @@ export default {
         _model.object.parent.rotation.y = -Math.PI / 4;
 
         console.log(_model);
-        _model.object.parent.position.set(0, -2.3, -2.3);
+        _model.object.parent.position.set(0, -2.3, -3.3);
         // _model.object.scale.set(2, 2, 2);
         // this.model = _model
         // let positions =  modeloader.combineBuffer(_model.object,"position")
@@ -176,46 +210,45 @@ export default {
         // modeloader.enableUpdate()
       });
 
-      modeloader.loadModelToScene("/model/rw.glb",  async (_model) => {
+      modeloader.loadModelToScene("/model/rw.glb", async (_model) => {
         // _model.object.rotation.y = -Math.PI / 4;
         console.log(this.viewer, 333);
         this.model["rw"] = _model;
-
+        console.log(this.model["rw"]);
         // _model.object.scale.set(2, 2, 2);
         let loader = new this.$THREE.TextureLoader();
         let tubTexture = loader.load(
           "/threeImg/head-baked.jpg" // 替换为您的纹理图片URL
         );
 
-
         let tubMaterial = new this.$THREE.MeshStandardMaterial({
           map: tubTexture, // 应用纹理
           color: 0xffffff, // 基础颜色（如果纹理是彩色的，这个颜色可能会与纹理混合）
           metalness: 0, // 金属性（浴缸通常不是金属的）
-          opacity:1,
+          opacity: 1,
           roughness: 0.5, // 粗糙度（较高的值会使表面看起来更磨砂）
         });
-         _model.object.traverse((child) => {
-          if(child.isMesh){
+        _model.object.traverse((child) => {
+          if (child.isMesh) {
             // if(child.name == "face"){
             //   console.log(child,555555)
             //   child.material = tubMaterial;
             // }
-            if(child.name == "head"){
-              console.log(child,555555)
+            if (child.name == "head") {
+              console.log(child, 555555);
               child.material = tubMaterial;
             }
           }
         });
-        _model.onesAnimate(6);
-        
-        // let data =  new Promise((resolve) => { 
+        _model.onesAnimate(0);
+
+        // let data =  new Promise((resolve) => {
         //   _model.onesAnimate(6);
 
-        //   resolve(); 
+        //   resolve();
         // });
         // data.then(res=>{
-          // _model.onesAnimate(2);
+        // _model.onesAnimate(2);
 
         // })
         // this.model = _model
@@ -227,7 +260,7 @@ export default {
       modeloader.loadModelToScene("/model/shiyan.glb", (_model) => {
         this.model["shiyan"] = _model;
 
-        _model.object.rotation.y = -Math.PI / 7;
+        _model.object.rotation.y = Math.PI / 7;
         // _model.object.rotation.z = Math.PI / 10;
         // _model.object.rotation.x= - Math.PI / 10;
         // _model.object.rotation.z = Math.PI / 10;
@@ -248,18 +281,18 @@ export default {
         let tubTexture = loader.load(
           "/threeImg/shuiwen.png" // 替换为您的纹理图片URL
         );
-        let tubMaterial = new this.$THREE.MeshStandardMaterial({
-          map: tubTexture, // 应用纹理
-          color: 0xffffff, // 基础颜色（如果纹理是彩色的，这个颜色可能会与纹理混合）
-          metalness: 0, // 金属性（浴缸通常不是金属的）
-          // opacity:0.5,
-          roughness: 0, // 粗糙度（较高的值会使表面看起来更磨砂）
-        });
-        _model.object.traverse((child) => {
-          if (child.isMesh) {
-            child.material = tubMaterial;
-          }
-        });
+        // let tubMaterial = new this.$THREE.MeshStandardMaterial({
+        //   map: tubTexture, // 应用纹理
+        //   color: 0xffffff, // 基础颜色（如果纹理是彩色的，这个颜色可能会与纹理混合）
+        //   metalness: 0, // 金属性（浴缸通常不是金属的）
+        //   // opacity:0.5,
+        //   roughness: 0, // 粗糙度（较高的值会使表面看起来更磨砂）
+        // });
+        // _model.object.traverse((child) => {
+        //   if (child.isMesh) {
+        //     child.material = tubMaterial;
+        //   }
+        // });
         _model.object.children[0].material.opacity = 0.6;
         _model.object.children[0].material.transparent = true;
         _model.object.rotation.y = -Math.PI / 7;
@@ -366,118 +399,157 @@ export default {
       requestAnimationFrame(this.animate.bind(this));
       TWEEN.update();
     },
+    throttle(func, wait, mustRun) {
+      var timeout,
+        startTime = new Date();
+
+      return function () {
+        var context = this,
+          args = arguments,
+          curTime = new Date();
+
+        clearTimeout(timeout);
+        // 如果达到了规定的触发时间间隔，触发 handler
+        if (curTime - startTime >= mustRun) {
+          func.apply(context, args);
+          startTime = curTime;
+          // 没达到触发间隔，重新设定定时器
+        } else {
+          timeout = setTimeout(func, wait);
+        }
+      };
+    },
+
+    mousewheelFunc(event) {
+      this.mouseKongZhifunc(event);
+    },
+
+    mouseKongZhi(event) {
+      if (event.deltaY > 0 && this.typeFangXiang == true) {
+        this.typeFangXiang = false;
+        this.AnimatedTracks.createTweenT(
+          this.model.rw.object.rotation,
+          { y: this.model.rw.object.rotation.y - Math.PI / 2 },
+          500,
+          () => {
+            this.model.rw.object.rotation.y =
+              this.model.rw.object.rotation.y + Math.PI / 2;
+            // clearInterval(this.setinterTimeFunc);
+            // this.model.room.object.visible = false;
+            this.model.rw.onesAnimate(5);
+          }
+        );
+
+        this.AnimatedTracks.createTweenT(
+          this.model.room.object.scale,
+          { y: 0.6, x: 0.6, z: 0.6 },
+          200,
+          () => {
+            // this.model.rw.object.rotation.y = this.model.rw.object.rotation.y + Math.PI / 3;
+            // clearInterval(this.setinterTimeFunc);
+            // this.model.room.object.scale.set(1, 1, 1)
+            this.model.room.object.visible = false;
+            // this.model.rw.onesAnimate(1);
+          }
+        );
+
+        this.scrollToElementWithAnimation(".d3Container2", 1500);
+
+        this.model.shiyan.object.position.y =
+          this.model.shiyan.object.position.y - 10;
+        this.model.shiyan.object.visible = true;
+
+        let tween3 = new TWEEN.Tween(this.model.shiyan.object.position)
+          .to({ y: this.model.shiyan.object.position.y + 10 }, 1000) // 旋转 360 度（2π），持续 5000 毫秒
+          // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀
+          .onComplete(() => {
+            this.model.shuiguan.object.visible = true;
+
+            var newMaterial = new this.$THREE.MeshBasicMaterial({
+              color: 0x327fcd,
+              wireframe: true,
+            });
+            this.model.rw.object.traverse((child) => {
+              if (child.isMesh) {
+                this.oldMather[child.name] = child.material;
+                child.material = newMaterial;
+              }
+            });
+          });
+
+        // 开始补间动画
+        tween3.start();
+
+        // 检查是否找到了元素
+        // TWEEN.update();
+
+        // this.AnimatedTracks()
+
+        // this.model.shiyan.object.visible = true;
+        // this.model.shuiguan.object.visible = true;
+      } else if (event.deltaY < 0 && this.typeFangXiang == false) {
+        this.typeFangXiang = true;
+        this.scrollToElementWithAnimation(".d3Container1", 1000);
+        this.model.rw.onesAnimate(6);
+
+        new this.$THREE.MeshBasicMaterial({
+          color: 0x0a2452,
+          wireframe: false,
+        });
+        this.model.rw.object.traverse((child) => {
+          if (child.isMesh) {
+            child.material = this.oldMather[child.name];
+          }
+        });
+
+        // 创建一个新的补间动画，使模型围绕 Y 轴旋转 360 度
+        let tween1 = new TWEEN.Tween(this.model.rw.object.rotation)
+          .to({ y: this.model.rw.object.rotation.y + Math.PI / 3 }, 900) // 旋转 360 度（2π），持续 5000 毫秒
+          // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀
+          .onComplete(() => {
+            this.model.rw.object.rotation.y =
+              this.model.rw.object.rotation.y - Math.PI / 3;
+            this.model.room.object.visible = true;
+
+            this.AnimatedTracks.createTweenT(
+              this.model.room.object.scale,
+              { y: 1, x: 1, z: 1 },
+              200,
+              () => {}
+            );
+            this.model.rw.onesAnimate(3);
+            // this.model.rw.onesAnimateD(2);
+            // this.model.rw.onesAnimate(3);
+          });
+
+        tween1.start();
+
+        // 飞出实验室
+        let tween4 = new TWEEN.Tween(this.model.shiyan.object.position)
+          .to({ y: this.model.shiyan.object.position.y - 10 }, 1000) // 旋转 360 度（2π），持续 5000 毫秒
+          // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀
+          .onComplete(() => {
+            this.model.shiyan.object.position.y =
+              this.model.shiyan.object.position.y + 10;
+            this.model.shiyan.object.visible = false;
+          });
+
+        // 开始补间动画
+        tween4.start();
+        // this.model.rw.object.traverse((child) => {
+        //   if (child.isMesh) {
+        //     child.material.wireframe = false;
+        //   }
+        // });
+        this.model.shuiguan.object.visible = false;
+      }
+      this.animate();
+    },
     /**
      * 监听滚动事件
      */
-    mousewheelFunc: function () {
-      window.addEventListener("mousewheel", (event) => {
-        //e.wheelDellta：可以用来获取鼠标的滚动方向，对于得到的值，只看正负，往上滚是正值，往下滚是负值。
-        if (event.deltaY > 0) {
-
-
-            this.AnimatedTracks.createTweenT(this.model.rw.object.rotation,{ y: this.model.rw.object.rotation.y - Math.PI / 3 },400,() => {
-              this.model.rw.object.rotation.y = this.model.rw.object.rotation.y + Math.PI / 3;
-              // clearInterval(this.setinterTimeFunc);
-              // this.model.room.object.visible = false;
-              this.model.rw.onesAnimate(1);
-            })
-
-            this.AnimatedTracks.createTweenT(this.model.room.object.scale,{ y:0.6, x: 0.6, z: 0.6 }, 200,() => {
-              // this.model.rw.object.rotation.y = this.model.rw.object.rotation.y + Math.PI / 3;
-              // clearInterval(this.setinterTimeFunc);
-              // this.model.room.object.scale.set(1, 1, 1)
-              this.model.room.object.visible = false;
-              this.model.rw.onesAnimate(1);
-            })
-
-          this.scrollToElementWithAnimation(".d3Container2", 1500); 
-
-          this.model.shiyan.object.position.y = this.model.shiyan.object.position.y - 10;
-          this.model.shiyan.object.visible = true;
-
-          let tween3 = new TWEEN.Tween(this.model.shiyan.object.position)
-            .to({ y: this.model.shiyan.object.position.y + 10 }, 1000) // 旋转 360 度（2π），持续 5000 毫秒
-            // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀
-            .onComplete(() => {
-              this.model.shuiguan.object.visible = true;
-
-              var newMaterial = new this.$THREE.MeshBasicMaterial({
-                color: 0x327fcd,
-                wireframe: true,
-              });
-              this.model.rw.object.traverse((child) => {
-                if (child.isMesh) {
-                  child.material = newMaterial;
-                }
-              });
-            });
-
-          // 开始补间动画
-          tween3.start();
-
-          // 检查是否找到了元素
-          // TWEEN.update();
-
-          // this.AnimatedTracks()
-
-          // this.model.shiyan.object.visible = true;
-          // this.model.shuiguan.object.visible = true;
-        } else {
-          this.scrollToElementWithAnimation(".d3Container1", 1000);
-          this.model.rw.onesAnimate(3);
-          var newMaterial = new this.$THREE.MeshBasicMaterial({
-                color: 0x0a2452,
-                wireframe: false,
-              });
-              this.model.rw.object.traverse((child) => {
-                if (child.isMesh) {
-                  child.material = newMaterial;
-                }
-            })
-
-
-
-          // 创建一个新的补间动画，使模型围绕 Y 轴旋转 360 度
-          let tween1 = new TWEEN.Tween(this.model.rw.object.rotation)
-            .to({ y: this.model.rw.object.rotation.y + Math.PI / 3 }, 900) // 旋转 360 度（2π），持续 5000 毫秒
-            // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀
-            .onComplete(() => {
-              this.model.rw.object.rotation.y =
-                this.model.rw.object.rotation.y - Math.PI / 3;
-                this.model.room.object.visible = true;
-
-              this.AnimatedTracks.createTweenT(this.model.room.object.scale,{ y:1, x: 1, z: 1 }, 200,()=>{})
-              this.model.rw.onesAnimateD(2);
-              this.model.rw.onesAnimate(3);
-
-            });
-            
-          tween1.start();
-
-          // 飞出实验室
-          let tween4 = new TWEEN.Tween(this.model.shiyan.object.position)  
-            .to({ y: this.model.shiyan.object.position.y - 10 }, 1000) // 旋转 360 度（2π），持续 5000 毫秒  
-            // .easing(TWEEN.Easing.Linear.None) // 使用线性缓动函数，这样旋转看起来更均匀  
-            .onComplete(() => {
-            this.model.shiyan.object.position.y = this.model.shiyan.object.position.y + 10;
-              this.model.shiyan.object.visible = false;
-            
-
-
-
-            }); 
-          
-          // 开始补间动画  
-          tween4.start();
-          // this.model.rw.object.traverse((child) => {
-          //   if (child.isMesh) {
-          //     child.material.wireframe = false;
-          //   }
-          // });
-          this.model.shuiguan.object.visible = false;
-        }
-        this.animate();
-      });
+    addEventListenerWhee: function () {
+      window.addEventListener("wheel", this.mousewheelFunc);
     },
 
     clickFunc: function () {
@@ -486,48 +558,48 @@ export default {
     /**
      * 选中事件
      */
-    startSelect: function () {
-      this.viewer.controls.enableZoom = false;
-      let modelSelect = ["topChild", "Below", "middleChild"];
-      this.viewer.startSelectEvent("mousemove", false, (model) => {
-        modelSelect.forEach((item) => {
-          if (item == model.parent.name) {
-            this.modelMoveName = item;
-            this.model.object.getObjectByName(item).traverse(function (child) {
-              if (child.isMesh) {
-                child.material = new THREE.MeshPhongMaterial({
-                  color: "yellow",
-                  transparent: true,
-                  opacity: 0.8,
-                  emissive: child.material.color,
-                  emissiveMap: child.material.map,
-                  emissiveIntensity: 3,
-                });
-              }
-            });
-          } else {
-            // this.model.object.getObjectByName(item).traverse(function (child) {
-            //   if (child.isMesh) {
-            //     child.material = new THREE.MeshPhongMaterial({
-            //       color: '',
-            //       transparent: true,
-            //       opacity: 0.8,
-            //       emissive: child.material.color,
-            //       emissiveMap: child.material.map,
-            //       emissiveIntensity: 3
-            //     })
-            //   }
-            // })
-            let oldmodel = this.oldModel.getObjectByName(item);
-            this.model.object.getObjectByName(item).traverse(function (child) {
-              if (child.isMesh) {
-                child.material = oldmodel.getObjectByName(child.name).material;
-              }
-            });
-          }
-        });
-      });
-    },
+    // startSelect: function () {
+    //   this.viewer.controls.enableZoom = false;
+    //   let modelSelect = ["topChild", "Below", "middleChild"];
+    //   this.viewer.startSelectEvent("mousemove", false, (model) => {
+    //     modelSelect.forEach((item) => {
+    //       if (item == model.parent.name) {
+    //         this.modelMoveName = item;
+    //         this.model.object.getObjectByName(item).traverse(function (child) {
+    //           if (child.isMesh) {
+    //             child.material = new THREE.MeshPhongMaterial({
+    //               color: "yellow",
+    //               transparent: true,
+    //               opacity: 0.8,
+    //               emissive: child.material.color,
+    //               emissiveMap: child.material.map,
+    //               emissiveIntensity: 3,
+    //             });
+    //           }
+    //         });
+    //       } else {
+    //         // this.model.object.getObjectByName(item).traverse(function (child) {
+    //         //   if (child.isMesh) {
+    //         //     child.material = new THREE.MeshPhongMaterial({
+    //         //       color: '',
+    //         //       transparent: true,
+    //         //       opacity: 0.8,
+    //         //       emissive: child.material.color,
+    //         //       emissiveMap: child.material.map,
+    //         //       emissiveIntensity: 3
+    //         //     })
+    //         //   }
+    //         // })
+    //         let oldmodel = this.oldModel.getObjectByName(item);
+    //         this.model.object.getObjectByName(item).traverse(function (child) {
+    //           if (child.isMesh) {
+    //             child.material = oldmodel.getObjectByName(child.name).material;
+    //           }
+    //         });
+    //       }
+    //     });
+    //   });
+    // },
 
     /**
      * 点击事件
@@ -617,79 +689,6 @@ export default {
         this.Labels.removeLight(item);
       });
     },
-    selectFloorOne() {
-      gsap.to(this.viewer.camera.position, {
-        x: 0,
-        y: 20,
-        z: -70,
-        duration: 2,
-        ease: "power1.inOut",
-      });
-      this.model.onesAnimate(4);
-    },
-
-    selectOffice(model) {
-      let modelSelectName = model.name;
-      let modelSelect = ["topChild", "Below", "middleChild"];
-      let oldmodel = this.oldModel.getObjectByName(modelSelectName);
-      let modelSelectIndex = modelSelect.findIndex((v) => v == modelSelectName);
-      this.model.object.children.forEach((child, index) => {
-        child.children.forEach((Mesh) => {
-          if (child.name === modelSelectName) {
-            child.children.forEach((Mesh) => {
-              Mesh.material = oldmodel.getObjectByName(Mesh.name).material;
-            });
-          } else {
-            Mesh.material = new THREE.MeshPhongMaterial({
-              color: new THREE.Color("#123ca8"),
-              transparent: true,
-              opacity: 0.5,
-              emissiveMap: Mesh.material.map,
-            });
-          }
-        });
-        if (!model.userData.position && index > modelSelectIndex) {
-          gsap.to(child.position, {
-            y: !child.userData.position
-              ? child.position.y + 25
-              : child.position.y,
-            duration: 2,
-            ease: "power1.inOut",
-            onComplete: () => {
-              child.userData.position = true;
-            },
-          });
-        }
-        if (model.userData.position && index <= modelSelectIndex) {
-          if (child.userData.position) {
-            gsap.to(child.position, {
-              y: oldOffice.getObjectByName(child.name).position.y,
-              duration: 2,
-              ease: "power1.inOut",
-              onComplete: () => {
-                child.userData.position = false;
-              },
-            });
-          }
-        }
-      });
-      gsap.to(this.viewer.controls.target, {
-        x: 12,
-        y: 0,
-        z: -5,
-        duration: 2,
-        ease: "power1.inOut",
-        onComplete: () => {},
-      });
-      gsap.to(this.viewer.camera.position, {
-        x: 12,
-        y: 18,
-        z: 38,
-        duration: 2,
-        ease: "power1.inOut",
-        onComplete: () => {},
-      });
-    },
   },
 
   computed: {
@@ -736,6 +735,11 @@ export default {
   height: 100% !important;
   width: 100%;
   background: #0a2452;
+}
+.d3Container3{
+  height: 100% !important;
+  width: 100%;
+  background: #eee7dc;
 }
 #d3Container {
   position: fixed;

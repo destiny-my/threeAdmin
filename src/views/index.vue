@@ -5,17 +5,34 @@
     <div class="main">
       <!-- <div>123123</div> -->
       <!-- 3D图 -->
+      <div class="rightBox" ref="typedRef" v-if="typedType">
+        <vue-typed-js :strings="['您好！我是杨鑫</br>这是我的作品集']" :loop="true">
+        <h1 class="typing"></h1>
+      </vue-typed-js>
+      </div>
+      <div class="LeftBox">
+          <description></description>
+      </div>
       <div class="main-3d">
         <Three ref="ThreeRef" />
       </div>
+
     </div>
 </template>
 
 <script>
 import DatePicker from "@/components/datePicker.vue";
 import Three from "./Three/floor.vue";
+import description from "./mainPage/description.vue";
+
+
 export default {
-  components: { DatePicker, Three },
+  components: { DatePicker, Three,description},
+  data(){
+    return{
+      typedType:true
+    }
+  }
 };
 </script>
 
@@ -25,7 +42,7 @@ export default {
   // display: flex;
   height: 100%;
   justify-content: space-between;
-
+  width: 400px;
   color: #def1fd;
   font-weight: 500;
 
@@ -415,17 +432,42 @@ export default {
 
 .main {
   width: 100%;
-      height: 100%;
+  height: 100%;
     // position: absolute;
-    background: #0094ff;
+    // background: #0094ff;
 
     
     .main-3d {
       width: 100%;
       height: 100%;
       background: #5c6972;
+      z-index: -1;
     }
+    .LeftBox{
+      z-index: 1;
+      position: absolute;
+      height: 5%;
+      width: 100%;
 
+    }
+    .rightBox{
+      position: absolute;
+      top: 25%;
+      left: 5%;
+      height: 30%;
+      width: 40%;
+      font-size: 0.2rem;
+      -webkit-background-clip: text;
+      background-clip: text;
+      background-image: linear-gradient(rgb(73, 120, 70), rgb(51, 38, 103));
+      -webkit-text-fill-color: transparent;
+      // background: red;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+    }
   }
 .el-carousel__indicators {
   z-index: 1;

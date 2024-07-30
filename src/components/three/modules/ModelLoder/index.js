@@ -31,9 +31,15 @@ export default class ModelLoder {
         // 没有这个会报错
         this.dracoLoader.setDecoderPath(resourcesUrl)// 默认放在public文件夹当中
         this.loaderGltf.setDRACOLoader(this.dracoLoader)
+        this._initGroup()
         
     }
 
+
+    _initGroup(){
+        this.parent.name = "modelParent"
+        this.scene.add(this.parent)
+    }
     /**
      * 添加模型数据
      * @param url 模型的路径
@@ -44,8 +50,8 @@ export default class ModelLoder {
         this.loadModel(url, model => {
             // this.position.set(1, 0, 0);
             //  
-            this.scene.add(this.parent);
-
+            
+            model.object.name = url
             this.parent.add(model.object)
             callback && callback(model)
         }, num => {
@@ -171,8 +177,8 @@ export default class ModelLoder {
                 uFrequency:{value:new THREE.Vector2(10,5)}              
             }
         });
-        const mesh = new THREE.Mesh(geometry,material)
-        this.scene.add(mesh)
+        // const mesh = new THREE.Mesh(geometry,material)
+        // this.scene.add(mesh)
         // dat.add(material.uniforms.uFrequency)
 
 

@@ -134,7 +134,7 @@ export default class DsModel {
     onesAnimate(i = 0) {
         this.animaIndex = i
         if (this.mixer) this.mixer.clipAction(this.model.animations[this.animaIndex]).stop()
-        if(i == 0 || i ==  1 || i == 4 || i == 2){
+        if(i == 0 || i ==5 || i == 4 || i == 3){
             this.mixer = null
         }
         if (!this.mixer) this.mixer = new THREE.AnimationMixer(this.object)
@@ -143,14 +143,14 @@ export default class DsModel {
         action.name = i
         action.setLoop(THREE.LoopOnce);  
         action.clampWhenFinished = true; 
-        this.mixer.addEventListener( 'finished', ( e )=>{ 
-            if(e.action.name !==2){
-                this.onesAnimate(2)
-            }
-            this.mixer.removeEventListener("finished")
+        // this.mixer.addEventListener( 'finished', ( e )=>{ 
+        //     if(e.action.name !==3){
+        //         this.onesAnimate(3)
+        //     }
+        //     this.mixer.removeEventListener("finished")
 
-            return
-        } );
+        //     return
+        // } );
         // action.time = 0; //操作对象设置开始播放时间
         // this.model.animations[i].duration = 60;//剪辑对象设置播放结束时间
         action.play();
